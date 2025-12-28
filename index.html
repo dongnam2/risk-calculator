@@ -24,7 +24,6 @@
     .entry-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 15px; }
     button { width: 100%; padding: 16px; border: none; border-radius: 12px; background: var(--main-color); color: #0f172a; font-weight: bold; font-size: 17px; cursor: pointer; margin-top: 10px; }
     
-    /* 버튼들 스타일 */
     .btn-group { display: none; margin-top: 10px; }
     .btn-copy { background: var(--copy-btn); color: white; margin-bottom: 8px; }
     .btn-report { background: var(--report-btn); color: white; }
@@ -35,7 +34,6 @@
     .res-val { font-weight: bold; color: var(--main-color); }
     .highlight-box { background: #1e293b; padding: 12px; border-radius: 8px; margin-top: 10px; border-left: 4px solid var(--accent); }
     .split-title { font-size: 13px; font-weight: bold; color: var(--accent); margin-bottom: 8px; }
-    .warning { color: #ff4444; font-size: 11px; text-align: center; margin-top: 15px; line-height: 1.4; }
   </style>
 </head>
 <body>
@@ -84,9 +82,10 @@
 
       <div class="highlight-box">
         <div class="split-title" id="splitCountText">회차별 진입 가이드</div>
+        <div class="res-row"><span>진입 횟수</span><span class="res-val" id="resSplitCount">0</span></div>
+        <div class="res-row"><span>회차별 포지션 사이즈</span><span class="res-val" id="resPerSize" style="color:#00ff88;">0</span></div>
         <div class="res-row"><span>회차별 코인 수량</span><span class="res-val" id="resPerQty">0</span></div>
-        <div class="res-row"><span>회차별 포지션(USDT)</span><span class="res-val" id="resPerSize">0</span></div>
-        <div class="res-row"><span>회차별 증거금(USDT)</span><span class="res-val" id="resPerMargin">0</span></div>
+        <div class="res-row"><span>회차별 증거금(Margin)</span><span class="res-val" id="resPerMargin">0</span></div>
       </div>
     </div>
   </div>
@@ -111,16 +110,21 @@
       const totalQty = totalRisk / priceDiff;
       const totalSize = totalQty * avgEntry;
       const totalMargin = totalSize / 100;
+
       const perQty = totalQty / entries.length;
+      const perSize = totalSize / entries.length;
+      const perMargin = totalMargin / entries.length;
 
       document.getElementById('resRisk').innerText = totalRisk.toLocaleString() + " USDT";
       document.getElementById('resAvgEntry').innerText = avgEntry.toLocaleString(undefined, { maximumFractionDigits: 4 });
-      document.getElementById('resTotalQty').innerText = totalQty.toLocaleString(undefined, { maximumFractionDigits: 4 });
       document.getElementById('resTotalSize').innerText = totalSize.toLocaleString(undefined, { maximumFractionDigits: 2 }) + " USDT";
+      document.getElementById('resTotalQty').innerText = totalQty.toLocaleString(undefined, { maximumFractionDigits: 4 });
       document.getElementById('resTotalMargin').innerText = totalMargin.toLocaleString(undefined, { maximumFractionDigits: 2 }) + " USDT";
+      
+      document.getElementById('resSplitCount').innerText = entries.length + "분할";
       document.getElementById('resPerQty').innerText = perQty.toLocaleString(undefined, { maximumFractionDigits: 4 });
-      document.getElementById('resPerSize').innerText = (totalSize / entries.length).toLocaleString(undefined, { maximumFractionDigits: 2 }) + " USDT";
-      document.getElementById('resPerMargin').innerText = (totalMargin / entries.length).toLocaleString(undefined, { maximumFractionDigits: 2 }) + " USDT";
+      document.getElementById('resPerSize').innerText = perSize.toLocaleString(undefined, { maximumFractionDigits: 2 }) + " USDT";
+      document.getElementById('resPerMargin').innerText = perMargin.toLocaleString(undefined, { maximumFractionDigits: 2 }) + " USDT";
       document.getElementById('splitCountText').innerText = entries.length + "회 분할 진입 가이드 (1회당)";
 
       document.getElementById('resultArea').style.display = "block";
@@ -128,7 +132,6 @@
       window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
     }
 
-    // 🤖 봇을 위한 명령어 복사
     function copyCommand() {
       const symbol = document.getElementById('symbol').value;
       const stop = document.getElementById('stop').value;
@@ -138,13 +141,14 @@
       doCopy(command, "봇 주문 명령어가 복사되었습니다!");
     }
 
-    // 📝 사람을 위한 상세 리포트 복사
     function copyFullReport() {
       const symbol = document.getElementById('symbol').value;
       const risk = document.getElementById('resRisk').innerText;
       const avg = document.getElementById('resAvgEntry').innerText;
       const totalSize = document.getElementById('resTotalSize').innerText;
       const stop = document.getElementById('stop').value;
+      const splitCount = document.getElementById('resSplitCount').innerText;
+      const perSize = document.getElementById('resPerSize').innerText;
       const perQty = document.getElementById('resPerQty').innerText;
       const perMargin = document.getElementById('resPerMargin').innerText;
 
@@ -156,9 +160,10 @@
 💰 감수 손실: ${risk} (시드 2%)
 🚀 총 포지션: ${totalSize} (100x)
 
-💡 회차별 가이드 (1회당)
-- 수량: ${perQty}
-- 증거금: ${perMargin}
+💡 진입 상세 (${splitCount})
+- 회차별 포지션: ${perSize}
+- 회차별 수량: ${perQty}
+- 회차별 증거금: ${perMargin}
 ━━━━━━━━━━━━━━
       `.trim();
 
