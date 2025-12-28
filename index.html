@@ -67,7 +67,7 @@
 
     <div id="btnGroup" class="btn-group">
       <button class="btn-copy" onclick="copyCommand()">🤖 주문 명령어 복사 (봇 전송용)</button>
-      <button class="btn-report" onclick="copyFullReport()">📝 전체 결과 복사 (사람 확인용)</button>
+      <button class="btn-report" onclick="copyFullReport()">📝 상세 결과 전체 복사 (사람 확인용)</button>
     </div>
 
     <div class="result" id="resultArea">
@@ -146,25 +146,32 @@
       const risk = document.getElementById('resRisk').innerText;
       const avg = document.getElementById('resAvgEntry').innerText;
       const totalSize = document.getElementById('resTotalSize').innerText;
+      const totalQty = document.getElementById('resTotalQty').innerText;
+      const totalMargin = document.getElementById('resTotalMargin').innerText;
       const stop = document.getElementById('stop').value;
       const splitCount = document.getElementById('resSplitCount').innerText;
       const perSize = document.getElementById('resPerSize').innerText;
       const perQty = document.getElementById('resPerQty').innerText;
       const perMargin = document.getElementById('resPerMargin').innerText;
 
+      // 상세 정보가 모두 포함된 텍스트 리포트
       const report = `
-📊 [${symbol}] 포지션 리포트
-━━━━━━━━━━━━━━
+📊 [${symbol}] 포지션 상세 리포트
+━━━━━━━━━━━━━━━━━━
 🎯 평균 진입가: ${avg}
 🛑 손절 가격: ${stop}
-💰 감수 손실: ${risk} (시드 2%)
-🚀 총 포지션: ${totalSize} (100x)
+📉 예상 손실: ${risk} (시드 2%)
 
-💡 진입 상세 (${splitCount})
+💰 [전체 포지션 요약]
+- 총 포지션: ${totalSize} (100x)
+- 총 코인 수량: ${totalQty}
+- 총 투입 증거금: ${totalMargin}
+
+💡 [회차별 상세 가이드 (${splitCount})]
 - 회차별 포지션: ${perSize}
 - 회차별 수량: ${perQty}
 - 회차별 증거금: ${perMargin}
-━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━
       `.trim();
 
       doCopy(report, "전체 상세 결과가 복사되었습니다!");
