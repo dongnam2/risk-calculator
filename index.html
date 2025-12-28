@@ -3,32 +3,24 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="3STEP CALC">
-  <meta name="theme-color" content="#0f172a">
   <title>3STEP POSITION CALC PRO</title>
-
   <style>
     :root { --main-color: #00eaff; --bg-color: #0f172a; --card-bg: #1e293b; --accent: #fbbf24; --copy-btn: #3b82f6; }
-    html { -webkit-text-size-adjust: 100%; }
-    body { font-family: -apple-system, sans-serif; background-color: var(--bg-color); color: white; margin: 0; padding: 20px; display: flex; justify-content: center; padding-top: calc(20px + env(safe-area-inset-top)); }
+    body { font-family: -apple-system, sans-serif; background-color: var(--bg-color); color: white; margin: 0; padding: 20px; display: flex; justify-content: center; }
     .container { width: 100%; max-width: 450px; background: var(--card-bg); padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-    h2 { text-align: center; color: var(--main-color); margin-bottom: 20px; font-weight: 800; letter-spacing: -1px; }
+    h2 { text-align: center; color: var(--main-color); margin-bottom: 20px; font-weight: 800; }
     .section-title { font-size: 14px; color: var(--main-color); margin-bottom: 10px; font-weight: bold; border-left: 4px solid var(--main-color); padding-left: 8px; }
     .input-group { margin-bottom: 12px; }
     label { display: block; margin-bottom: 5px; font-size: 12px; color: #94a3b8; }
     input { width: 100%; padding: 12px; box-sizing: border-box; border-radius: 10px; border: 1px solid #334155; background: #0f172a; color: white; font-size: 16px; outline: none; }
-    input:focus { border-color: var(--main-color); }
-    input[readonly] { opacity: 0.85; border-style: dashed; cursor: default; }
     .entry-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 15px; }
     button { width: 100%; padding: 16px; border: none; border-radius: 12px; background: var(--main-color); color: #0f172a; font-weight: bold; font-size: 17px; cursor: pointer; margin-top: 10px; }
-    .btn-copy { background: var(--copy-btn); color: white; display: none; margin-top: 8px; }
+    /* 복사 버튼은 처음부터 보이게 설정하거나, 계산 후 보이게 할 수 있습니다. */
+    .btn-copy { background: var(--copy-btn); color: white; margin-top: 8px; display: none; }
     .result { margin-top: 25px; padding: 20px; background: #334155; border-radius: 12px; display: none; }
     .res-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; }
     .res-val { font-weight: bold; color: var(--main-color); }
-    .highlight-box { background: #1e293b; padding: 12px; border-radius: 8px; margin-top: 10px; border-left: 4px solid var(--accent); }
-    .warning { color: #ff4444; font-size: 11px; text-align: center; margin-top: 15px; line-height: 1.4; }
+    .warning { color: #ff4444; font-size: 11px; text-align: center; margin-top: 15px; }
   </style>
 </head>
 <body>
@@ -43,14 +35,14 @@
 
     <div class="input-group">
       <div class="section-title">거래 코인 (Symbol)</div>
-      <input type="text" id="symbol" value="BTC/USDT" placeholder="예: BTC/USDT">
+      <input type="text" id="symbol" value="BTC/USDT">
     </div>
 
     <div class="section-title">진입 가격 (1~3차)</div>
     <div class="entry-grid">
-      <div class="input-group"><label>1차 진입</label><input type="number" id="e1" placeholder="필수" inputmode="decimal"></div>
-      <div class="input-group"><label>2차 진입</label><input type="number" id="e2" placeholder="선택" inputmode="decimal"></div>
-      <div class="input-group"><label>3차 진입</label><input type="number" id="e3" placeholder="선택" inputmode="decimal"></div>
+      <div class="input-group"><label>1차</label><input type="number" id="e1" placeholder="필수" inputmode="decimal"></div>
+      <div class="input-group"><label>2차</label><input type="number" id="e2" placeholder="선택" inputmode="decimal"></div>
+      <div class="input-group"><label>3차</label><input type="number" id="e3" placeholder="선택" inputmode="decimal"></div>
     </div>
 
     <div class="input-group">
@@ -62,16 +54,9 @@
     <button id="copyBtn" class="btn-copy" onclick="copyCommand()">주문 명령어 복사하기</button>
 
     <div class="result" id="resultArea">
-      <div class="res-row"><span>감수할 손실 (2%)</span><span class="res-val" id="resRisk" style="color:#ef4444;">0</span></div>
-      <div class="res-row"><span>평균 진입 단가</span><span class="res-val" id="resAvgEntry">0</span></div>
-      <div class="res-row" style="background:#2d3748; padding:5px; border-radius:4px;">
-        <span>총 포지션 사이즈</span><span class="res-val" id="resTotalSize" style="color:#00ff88;">0</span>
-      </div>
-      <div class="highlight-box">
-        <div class="res-row"><span>회차별 수량</span><span class="res-val" id="resPerQty">0</span></div>
-        <div class="res-row"><span>회차별 증거금</span><span class="res-val" id="resPerMargin">0</span></div>
-      </div>
-      <div class="warning">※ 복사된 명령어를 텔레그램 봇에게 전송하세요.</div>
+      <div class="res-row"><span>평균 진입가</span><span class="res-val" id="resAvgEntry">0</span></div>
+      <div class="res-row"><span>회차별 수량</span><span class="res-val" id="resPerQty">0</span></div>
+      <div class="warning">※ 복사 버튼을 눌러 텔레그램으로 가져가세요.</div>
     </div>
   </div>
 
@@ -93,20 +78,16 @@
       const totalRisk = 2000 * 0.02;
       const priceDiff = Math.abs(avgEntry - stop);
       const totalQty = totalRisk / priceDiff;
-      const totalSize = totalQty * avgEntry;
       const perQty = totalQty / entries.length;
-      const perMargin = (perQty * avgEntry) / 100;
 
-      document.getElementById('resRisk').innerText = totalRisk + " USDT";
       document.getElementById('resAvgEntry').innerText = avgEntry.toFixed(2);
-      document.getElementById('resTotalSize').innerText = totalSize.toFixed(2) + " USDT";
       document.getElementById('resPerQty').innerText = perQty.toFixed(4);
-      document.getElementById('resPerMargin').innerText = perMargin.toFixed(2) + " USDT";
 
       document.getElementById('resultArea').style.display = "block";
-      document.getElementById('copyBtn').style.display = "block";
+      document.getElementById('copyBtn').style.display = "block"; // 버튼 보이기
     }
 
+    // 어떤 환경에서도 작동하는 강력한 복사 함수
     function copyCommand() {
       const symbol = document.getElementById('symbol').value;
       const stop = document.getElementById('stop').value;
@@ -119,9 +100,31 @@
 
       const command = `[ORDER]|${symbol}|${entries.join(",")}|${qty}|${stop}`;
 
-      navigator.clipboard.writeText(command).then(() => {
-        alert("명령어가 복사되었습니다!\n텔레그램 봇에 붙여넣으세요.\n\n" + command);
-      });
+      // 1. 최신 브라우저 방식 시도
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(command).then(() => {
+          alert("명령어가 복사되었습니다!\n\n" + command);
+        }).catch(err => {
+          fallbackCopy(command); // 실패 시 보조 방식 실행
+        });
+      } else {
+        fallbackCopy(command); // 지원하지 않는 환경일 때 보조 방식 실행
+      }
+    }
+
+    // 보조 복사 방식 (구형 브라우저 및 비보안 환경용)
+    function fallbackCopy(text) {
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        alert("명령어가 복사되었습니다! (보조방식)\n\n" + text);
+      } catch (err) {
+        alert("복사에 실패했습니다. 직접 복사해주세요: " + text);
+      }
+      document.body.removeChild(textArea);
     }
   </script>
 </body>
