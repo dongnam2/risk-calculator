@@ -2,197 +2,535 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
+
+  <!-- iPhone 홈화면 웹앱 최적화 -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="3STEP CALC">
   <meta name="theme-color" content="#0f172a">
+  <!-- (선택) icon-180.png를 같은 폴더(루트)에 올리면 아이콘 적용 -->
+  <link rel="apple-touch-icon" href="icon-180.png">
+
   <title>3분할 리스크 계산기 PRO</title>
 
   <style>
-    :root { --main-color: #00eaff; --bg-color: #0f172a; --card-bg: #1e293b; --accent: #fbbf24; --copy-btn: #3b82f6; --report-btn: #8b5cf6; }
-    html { -webkit-text-size-adjust: 100%; }
-    body { font-family: -apple-system, sans-serif; background-color: var(--bg-color); color: white; margin: 0; padding: 20px; display: flex; justify-content: center; padding-top: calc(20px + env(safe-area-inset-top)); }
-    .container { width: 100%; max-width: 450px; background: var(--card-bg); padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-    h2 { text-align: center; color: var(--main-color); margin-bottom: 20px; font-weight: 800; letter-spacing: -1px; }
-    .section-title { font-size: 14px; color: var(--main-color); margin-bottom: 10px; font-weight: bold; border-left: 4px solid var(--main-color); padding-left: 8px; }
-    .input-group { margin-bottom: 12px; }
-    label { display: block; margin-bottom: 5px; font-size: 12px; color: #94a3b8; }
-    input { width: 100%; padding: 12px; box-sizing: border-box; border-radius: 10px; border: 1px solid #334155; background: #0f172a; color: white; font-size: 16px; outline: none; }
-    input:focus { border-color: var(--main-color); }
-    input[readonly] { opacity: 0.85; border-style: dashed; cursor: default; }
-    .entry-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 15px; }
-    button { width: 100%; padding: 16px; border: none; border-radius: 12px; background: var(--main-color); color: #0f172a; font-weight: bold; font-size: 17px; cursor: pointer; margin-top: 10px; }
-    
-    .btn-group { display: none; margin-top: 10px; }
-    .btn-copy { background: var(--copy-btn); color: white; margin-bottom: 8px; }
-    .btn-report { background: var(--report-btn); color: white; }
+    :root { --main-color: #00eaff; --bg-color: #0f172a; --card-bg: #1e293b; --accent: #fbbf24; }
 
-    .result { margin-top: 25px; padding: 20px; background: #334155; border-radius: 12px; display: none; }
-    .res-header { font-size: 16px; font-weight: bold; margin-bottom: 15px; text-align: center; color: #f8fafc; border-bottom: 1px solid #475569; padding-bottom: 10px; }
-    .res-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; }
-    .res-val { font-weight: bold; color: var(--main-color); }
-    .highlight-box { background: #1e293b; padding: 12px; border-radius: 8px; margin-top: 10px; border-left: 4px solid var(--accent); }
-    .split-title { font-size: 13px; font-weight: bold; color: var(--accent); margin-bottom: 8px; }
+    /* iOS 글자 자동확대/레이아웃 튐 방지 */
+    html { -webkit-text-size-adjust: 100%; }
+
+    body {
+      font-family: -apple-system, sans-serif;
+      background-color: var(--bg-color);
+      color: white;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      padding-top: calc(20px + env(safe-area-inset-top));
+      padding-bottom: calc(20px + env(safe-area-inset-bottom));
+    }
+
+    .container {
+      width: 100%;
+      max-width: 450px;
+      background: var(--card-bg);
+      padding: 25px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    h2 {
+      text-align: center;
+      color: var(--main-color);
+      margin-bottom: 20px;
+      font-weight: 800;
+      letter-spacing: -1px;
+    }
+
+    .section-title {
+      font-size: 14px;
+      color: var(--main-color);
+      margin-bottom: 10px;
+      font-weight: bold;
+      border-left: 4px solid var(--main-color);
+      padding-left: 8px;
+    }
+
+    .input-group { margin-bottom: 12px; }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 12px;
+      color: #94a3b8;
+    }
+
+    /* 핵심: iOS 자동 줌 방지 -> input/textarea 16px 이상 */
+    input, textarea {
+      width: 100%;
+      padding: 12px;
+      box-sizing: border-box;
+      border-radius: 10px;
+      border: 1px solid #334155;
+      background: #0f172a;
+      color: white;
+      font-size: 16px;
+      outline: none;
+    }
+    input:focus, textarea:focus { border-color: var(--main-color); }
+
+    /* 고정값(잠금) input 시각 처리 */
+    input[readonly] {
+      opacity: 0.85;
+      border-style: dashed;
+      cursor: default;
+    }
+
+    .entry-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 15px;
+    }
+
+    button {
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 12px;
+      background: var(--main-color);
+      color: #0f172a;
+      font-weight: bold;
+      font-size: 17px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .result {
+      margin-top: 25px;
+      padding: 20px;
+      background: #334155;
+      border-radius: 12px;
+      display: none;
+    }
+
+    .res-header {
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 15px;
+      text-align: center;
+      color: #f8fafc;
+      border-bottom: 1px solid #475569;
+      padding-bottom: 10px;
+    }
+
+    .res-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      font-size: 14px;
+      gap: 10px;
+    }
+
+    .res-val {
+      font-weight: bold;
+      color: var(--main-color);
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .highlight-box {
+      background: #1e293b;
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 10px;
+      border-left: 4px solid var(--accent);
+    }
+
+    .split-title {
+      font-size: 13px;
+      font-weight: bold;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+
+    .warning {
+      color: #ff4444;
+      font-size: 11px;
+      text-align: center;
+      margin-top: 15px;
+      line-height: 1.4;
+    }
+
+    /* ===== 탭-복사용 UI ===== */
+    .copyable {
+      cursor: pointer;
+      position: relative;
+      padding: 2px 6px;
+      border-radius: 8px;
+      border: 1px dashed rgba(148,163,184,0.35);
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .copyable:active { transform: scale(0.98); }
+
+    /* 진입가/손절가 칩 */
+    .copychip{
+      display:inline-flex;
+      align-items:center;
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px dashed rgba(148,163,184,0.35);
+      background:#0f172a;
+      font-size:14px;
+    }
+    .copychip:active{ transform: scale(0.98); }
+
+    /* 토스트 */
+    #miniToast {
+      position: fixed;
+      left: 50%;
+      bottom: calc(18px + env(safe-area-inset-bottom));
+      transform: translateX(-50%);
+      background: rgba(15, 23, 42, 0.92);
+      border: 1px solid rgba(148,163,184,0.25);
+      color: #e2e8f0;
+      padding: 10px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      z-index: 9999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+    #miniToast.show { opacity: 1; }
   </style>
 </head>
+
 <body>
   <div class="container">
     <h2>3-STEP POSITION CALC</h2>
 
     <div class="section-title">기본 정보 (손실 2% 고정)</div>
     <div class="entry-grid" style="grid-template-columns: 1fr 1fr;">
-      <div class="input-group"><label>총 시드 (USDT)</label><input type="number" id="seed" value="2000" readonly></div>
-      <div class="input-group"><label>레버리지 (배)</label><input type="number" id="leverage" value="100" readonly></div>
-    </div>
-
-    <div class="input-group">
-      <div class="section-title">거래 코인 (Symbol)</div>
-      <input type="text" id="symbol" value="BTC/USDT">
+      <div class="input-group">
+        <label>총 시드 (USDT) - 고정</label>
+        <input type="number" id="seed" value="2000" readonly inputmode="decimal" autocomplete="off" autocapitalize="off" spellcheck="false">
+      </div>
+      <div class="input-group">
+        <label>레버리지 (배) - 고정</label>
+        <input type="number" id="leverage" value="100" readonly inputmode="decimal" autocomplete="off" autocapitalize="off" spellcheck="false">
+      </div>
     </div>
 
     <div class="section-title">진입 가격 (1~3차)</div>
     <div class="entry-grid">
-      <div class="input-group"><label>1차</label><input type="number" id="e1" placeholder="필수" inputmode="decimal"></div>
-      <div class="input-group"><label>2차</label><input type="number" id="e2" placeholder="선택" inputmode="decimal"></div>
-      <div class="input-group"><label>3차</label><input type="number" id="e3" placeholder="선택" inputmode="decimal"></div>
+      <div class="input-group">
+        <label>1차 진입</label>
+        <input type="number" id="e1" placeholder="필수" inputmode="decimal" autocomplete="off" autocapitalize="off" spellcheck="false">
+      </div>
+      <div class="input-group">
+        <label>2차 진입</label>
+        <input type="number" id="e2" placeholder="선택" inputmode="decimal" autocomplete="off" autocapitalize="off" spellcheck="false">
+      </div>
+      <div class="input-group">
+        <label>3차 진입</label>
+        <input type="number" id="e3" placeholder="선택" inputmode="decimal" autocomplete="off" autocapitalize="off" spellcheck="false">
+      </div>
     </div>
 
     <div class="input-group">
       <div class="section-title">손절 가격 (Stop Loss)</div>
-      <input type="number" id="stop" placeholder="손절가 입력" inputmode="decimal">
+      <input type="number" id="stop" placeholder="손절가 입력" inputmode="decimal" autocomplete="off" autocapitalize="off" spellcheck="false">
     </div>
 
-    <button onclick="calculate()">포지션 상세 계산</button>
-
-    <div id="btnGroup" class="btn-group">
-      <button class="btn-copy" onclick="copyCommand()">🤖 주문 명령어 복사 (봇 전송용)</button>
-      <button class="btn-report" onclick="copyFullReport()">📝 상세 결과 전체 복사 (사람 확인용)</button>
-    </div>
+    <button type="button" onclick="calculate()">포지션 상세 계산</button>
 
     <div class="result" id="resultArea">
       <div class="res-header">📊 전체 포지션 요약</div>
-      <div class="res-row"><span>감수할 손실 (2%)</span><span class="res-val" id="resRisk">0</span></div>
-      <div class="res-row"><span>평균 진입 단가</span><span class="res-val" id="resAvgEntry">0</span></div>
-      <div class="res-row" style="background:#2d3748; padding:5px; border-radius:4px;">
-        <span>총 포지션 사이즈</span><span class="res-val" id="resTotalSize" style="color:#00ff88;">0</span>
+
+      <!-- 진입가/손절가 칩: 각각 탭 복사 -->
+      <div class="highlight-box" style="margin-top:12px;">
+        <div class="split-title">진입가 / 손절가 (탭하면 숫자 복사)</div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <div class="res-val copychip" id="chipE1">E1: -</div>
+          <div class="res-val copychip" id="chipE2">E2: -</div>
+          <div class="res-val copychip" id="chipE3">E3: -</div>
+          <div class="res-val copychip" id="chipStop">STOP: -</div>
+        </div>
       </div>
-      <div class="res-row"><span>총 코인 수량</span><span class="res-val" id="resTotalQty">0</span></div>
-      <div class="res-row"><span>총 투입 증거금</span><span class="res-val" id="resTotalMargin" style="color:var(--accent);">0</span></div>
+
+      <div class="res-row" style="margin-top:14px;">
+        <span>감수할 손실 (2%)</span>
+        <span class="res-val" id="resRisk" style="color:#ef4444;">0</span>
+      </div>
+
+      <div class="res-row">
+        <span>평균 진입 단가</span>
+        <span class="res-val" id="resAvgEntry">0</span>
+      </div>
+
+      <div class="res-row" style="background:#2d3748; padding:5px; border-radius:4px;">
+        <span>총 포지션 사이즈</span>
+        <span class="res-val" id="resTotalSize" style="color:#00ff88;">0</span>
+      </div>
+
+      <div class="res-row">
+        <span>총 코인 수량</span>
+        <span class="res-val" id="resTotalQty">0</span>
+      </div>
+
+      <div class="res-row">
+        <span>총 투입 증거금(Margin)</span>
+        <span class="res-val" id="resTotalMargin" style="color:var(--accent);">0</span>
+      </div>
 
       <div class="highlight-box">
-        <div class="split-title" id="splitCountText">회차별 진입 가이드</div>
-        <div class="res-row"><span>진입 횟수</span><span class="res-val" id="resSplitCount">0</span></div>
-        <div class="res-row"><span>회차별 포지션 사이즈</span><span class="res-val" id="resPerSize" style="color:#00ff88;">0</span></div>
-        <div class="res-row"><span>회차별 코인 수량</span><span class="res-val" id="resPerQty">0</span></div>
-        <div class="res-row"><span>회차별 증거금(Margin)</span><span class="res-val" id="resPerMargin">0</span></div>
+        <div class="split-title" id="splitCountText">회차별 진입 가이드 (균등)</div>
+        <div class="res-row">
+          <span>회차별 코인 수량</span>
+          <span class="res-val" id="resPerQty">0</span>
+        </div>
+        <div class="res-row">
+          <span>회차별 포지션(USDT)</span>
+          <span class="res-val" id="resPerSize">0</span>
+        </div>
+        <div class="res-row">
+          <span>회차별 증거금(USDT)</span>
+          <span class="res-val" id="resPerMargin">0</span>
+        </div>
+      </div>
+
+      <!-- 텔레그램 복사용 -->
+      <div class="highlight-box" style="margin-top:14px;">
+        <div class="split-title">📋 텔레그램 복사용 텍스트</div>
+        <textarea id="copyText" readonly rows="7" placeholder="계산 후 자동 생성됩니다."
+          autocomplete="off" autocapitalize="off" spellcheck="false"
+          style="line-height:1.35; resize:none;"></textarea>
+
+        <button type="button" onclick="copyTelegramText()" style="margin-top:10px;">
+          텔레그램용 전체 복사
+        </button>
+
+        <div id="copyStatus" style="margin-top:8px; font-size:12px; color:#94a3b8; text-align:center;"></div>
+      </div>
+
+      <div class="warning">
+        ※ 50~100배 고배율 사용 시 슬리피지에 주의하세요.<br>
+        계산된 수량은 손절 시 시드의 2% 손실을 보장합니다.
       </div>
     </div>
   </div>
 
+  <div id="miniToast"></div>
+
   <script>
+    // ===== 고정값 =====
+    const FIXED_SEED = 2000;
+    const FIXED_LEV  = 100;
+
+    // ===== iOS 키보드/스크롤 튐 완화: 포커스 시 가운데로 부드럽게 정렬 =====
+    function attachIOSFocusFix() {
+      const inputs = document.querySelectorAll('input:not([readonly])');
+      inputs.forEach((el) => {
+        el.addEventListener('focus', () => {
+          setTimeout(() => {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }, 250);
+        }, { passive: true });
+      });
+    }
+    attachIOSFocusFix();
+
+    // ===== 토스트 =====
+    let toastTimer = null;
+    function showToast(msg) {
+      const t = document.getElementById("miniToast");
+      if (!t) return;
+      t.textContent = msg;
+      t.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => t.classList.remove("show"), 1100);
+    }
+
+    // ===== 클립보드 복사(HTTPS에서 안정적, iOS fallback 포함) =====
+    async function copyTextSafe(text) {
+      const clean = String(text ?? "").trim();
+      if (!clean) { showToast("복사할 숫자가 없어요"); return; }
+
+      try {
+        await navigator.clipboard.writeText(clean);
+        showToast("✅ 복사됨");
+      } catch (e) {
+        const dummy = document.createElement("textarea");
+        dummy.value = clean;
+        dummy.style.position = "fixed";
+        dummy.style.opacity = "0";
+        document.body.appendChild(dummy);
+        dummy.focus();
+        dummy.select();
+        try { document.execCommand("copy"); } catch (_) {}
+        document.body.removeChild(dummy);
+        showToast("✅ 복사됨");
+      }
+    }
+
+    // ===== 화면에 USDT/콤마가 있어도 "숫자만" 추출 =====
+    function extractFirstNumber(raw) {
+      const s = String(raw ?? "");
+      const m = s.replace(/[,\s]/g, "").match(/-?\d+(\.\d+)?/);
+      return m ? m[0] : "";
+    }
+
+    // ===== 결과 영역의 숫자 전부 탭-복사 활성화 =====
+    function enableTapToCopyAllResults() {
+      const resultArea = document.getElementById("resultArea");
+      if (!resultArea) return;
+
+      const vals = resultArea.querySelectorAll(".res-val");
+      vals.forEach((el) => {
+        el.classList.add("copyable");
+
+        if (el.dataset.bound === "1") return;
+        el.addEventListener("click", () => {
+          const num = extractFirstNumber(el.innerText || "");
+          copyTextSafe(num);
+        });
+        el.dataset.bound = "1";
+      });
+    }
+
+    // ===== 텔레그램 복사용 텍스트 생성 =====
+    function buildTelegramText({ entries, stop, avgEntry, totalQty, totalSize, totalMargin, perQty, perSize, perMargin, totalRisk }) {
+      const eText = entries.map((v, i) => `E${i+1}:${v}`).join(" / ");
+      return [
+        "🧮 3STEP POSITION",
+        `Seed: ${FIXED_SEED} USDT | Lev: ${FIXED_LEV}x | Risk(2%): ${totalRisk.toFixed(2)} USDT`,
+        `Entries: ${eText}`,
+        `Stop: ${stop}`,
+        `AvgEntry: ${avgEntry}`,
+        `TotalQty: ${totalQty}`,
+        `TotalSize: ${totalSize.toFixed(2)} USDT`,
+        `TotalMargin: ${totalMargin.toFixed(2)} USDT`,
+        `PerStep(${entries.length}): Qty ${perQty} | Size ${perSize.toFixed(2)} | Margin ${perMargin.toFixed(2)}`
+      ].join("\n");
+    }
+
+    async function copyTelegramText() {
+      const ta = document.getElementById("copyText");
+      const status = document.getElementById("copyStatus");
+      const text = (ta?.value || "").trim();
+
+      if (!text) {
+        status.innerText = "먼저 계산을 실행해 주세요.";
+        showToast("먼저 계산을 실행하세요");
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(text);
+        status.innerText = "✅ 복사 완료! 텔레그램에 붙여넣기 하세요.";
+        showToast("✅ 전체 텍스트 복사됨");
+      } catch (e) {
+        ta.focus();
+        ta.select();
+        ta.setSelectionRange(0, ta.value.length);
+        status.innerText = "복사가 막혔어요. 텍스트가 선택됐으니 ‘복사’ 후 붙여넣기 하세요.";
+        showToast("선택됨 → 복사하세요");
+      }
+    }
+
+    // ===== 메인 계산 =====
     function calculate() {
+      const seed = FIXED_SEED;
+      const lev  = FIXED_LEV;
+
       const stop = parseFloat(document.getElementById('stop').value);
+
       const entries = [
         parseFloat(document.getElementById('e1').value),
         parseFloat(document.getElementById('e2').value),
         parseFloat(document.getElementById('e3').value)
-      ].filter(val => !isNaN(val) && val > 0);
+      ].filter(v => !isNaN(v) && v > 0);
 
       if (!stop || entries.length === 0) {
-        alert("진입가와 손절가를 입력해주세요!");
+        alert("진입가(최소 1개)와 손절가를 입력해주세요!");
         return;
       }
 
       const avgEntry = entries.reduce((a, b) => a + b, 0) / entries.length;
-      const totalRisk = 2000 * 0.02;
+      const totalRisk = seed * 0.02;
       const priceDiff = Math.abs(avgEntry - stop);
+
+      if (priceDiff === 0) {
+        alert("진입가와 손절가가 같을 수 없습니다.");
+        return;
+      }
+
       const totalQty = totalRisk / priceDiff;
       const totalSize = totalQty * avgEntry;
-      const totalMargin = totalSize / 100;
+      const totalMargin = totalSize / lev;
 
       const perQty = totalQty / entries.length;
       const perSize = totalSize / entries.length;
       const perMargin = totalMargin / entries.length;
 
-      document.getElementById('resRisk').innerText = totalRisk.toLocaleString() + " USDT";
+      // ===== 진입가/손절가 칩 표시 (각각 개별 복사) =====
+      const chipE1 = document.getElementById("chipE1");
+      const chipE2 = document.getElementById("chipE2");
+      const chipE3 = document.getElementById("chipE3");
+      const chipStop = document.getElementById("chipStop");
+
+      const e1 = entries[0] ?? null;
+      const e2 = entries[1] ?? null;
+      const e3 = entries[2] ?? null;
+
+      if (chipE1) { chipE1.style.display = e1 ? "inline-flex" : "none"; chipE1.innerText = `E1: ${e1 ?? "-"}`; }
+      if (chipE2) { chipE2.style.display = e2 ? "inline-flex" : "none"; chipE2.innerText = `E2: ${e2 ?? "-"}`; }
+      if (chipE3) { chipE3.style.display = e3 ? "inline-flex" : "none"; chipE3.innerText = `E3: ${e3 ?? "-"}`; }
+      if (chipStop) { chipStop.innerText = `STOP: ${stop}`; }
+
+      // ===== 결과 텍스트 대입 =====
+      document.getElementById('resRisk').innerText = totalRisk.toLocaleString(undefined, { maximumFractionDigits: 2 }) + " USDT";
       document.getElementById('resAvgEntry').innerText = avgEntry.toLocaleString(undefined, { maximumFractionDigits: 4 });
-      document.getElementById('resTotalSize').innerText = totalSize.toLocaleString(undefined, { maximumFractionDigits: 2 }) + " USDT";
       document.getElementById('resTotalQty').innerText = totalQty.toLocaleString(undefined, { maximumFractionDigits: 4 });
+      document.getElementById('resTotalSize').innerText = totalSize.toLocaleString(undefined, { maximumFractionDigits: 2 }) + " USDT";
       document.getElementById('resTotalMargin').innerText = totalMargin.toLocaleString(undefined, { maximumFractionDigits: 2 }) + " USDT";
-      
-      document.getElementById('resSplitCount').innerText = entries.length + "분할";
+
+      document.getElementById('splitCountText').innerText = entries.length + "회 분할 진입 가이드 (1회당)";
       document.getElementById('resPerQty').innerText = perQty.toLocaleString(undefined, { maximumFractionDigits: 4 });
       document.getElementById('resPerSize').innerText = perSize.toLocaleString(undefined, { maximumFractionDigits: 2 }) + " USDT";
       document.getElementById('resPerMargin').innerText = perMargin.toLocaleString(undefined, { maximumFractionDigits: 2 }) + " USDT";
-      document.getElementById('splitCountText').innerText = entries.length + "회 분할 진입 가이드 (1회당)";
 
-      document.getElementById('resultArea').style.display = "block";
-      document.getElementById('btnGroup').style.display = "block";
-      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-    }
+      // ===== 텔레그램 복사용 텍스트 생성 =====
+      const tgText = buildTelegramText({
+        entries,
+        stop,
+        avgEntry: Number(avgEntry.toFixed(4)),
+        totalQty: Number(totalQty.toFixed(4)),
+        totalSize,
+        totalMargin,
+        perQty: Number(perQty.toFixed(4)),
+        perSize,
+        perMargin,
+        totalRisk
+      });
+      document.getElementById("copyText").value = tgText;
+      document.getElementById("copyStatus").innerText = "계산 결과가 생성되었습니다.";
 
-    function copyCommand() {
-      const symbol = document.getElementById('symbol').value;
-      const stop = document.getElementById('stop').value;
-      const qty = document.getElementById('resPerQty').innerText.replace(/,/g, '');
-      const entries = [document.getElementById('e1').value, document.getElementById('e2').value, document.getElementById('e3').value].filter(v => v !== "");
-      const command = `[ORDER]|${symbol}|${entries.join(",")}|${qty}|${stop}`;
-      doCopy(command, "봇 주문 명령어가 복사되었습니다!");
-    }
+      // ===== 결과 표시 =====
+      const resultArea = document.getElementById('resultArea');
+      resultArea.style.display = "block";
 
-    function copyFullReport() {
-      const symbol = document.getElementById('symbol').value;
-      const risk = document.getElementById('resRisk').innerText;
-      const avg = document.getElementById('resAvgEntry').innerText;
-      const totalSize = document.getElementById('resTotalSize').innerText;
-      const totalQty = document.getElementById('resTotalQty').innerText;
-      const totalMargin = document.getElementById('resTotalMargin').innerText;
-      const stop = document.getElementById('stop').value;
-      const splitCount = document.getElementById('resSplitCount').innerText;
-      const perSize = document.getElementById('resPerSize').innerText;
-      const perQty = document.getElementById('resPerQty').innerText;
-      const perMargin = document.getElementById('resPerMargin').innerText;
+      // 결과 숫자 전부 탭-복사 활성화
+      enableTapToCopyAllResults();
 
-      // 상세 정보가 모두 포함된 텍스트 리포트
-      const report = `
-📊 [${symbol}] 포지션 상세 리포트
-━━━━━━━━━━━━━━━━━━
-🎯 평균 진입가: ${avg}
-🛑 손절 가격: ${stop}
-📉 예상 손실: ${risk} (시드 2%)
-
-💰 [전체 포지션 요약]
-- 총 포지션: ${totalSize} (100x)
-- 총 코인 수량: ${totalQty}
-- 총 투입 증거금: ${totalMargin}
-
-💡 [회차별 상세 가이드 (${splitCount})]
-- 회차별 포지션: ${perSize}
-- 회차별 수량: ${perQty}
-- 회차별 증거금: ${perMargin}
-━━━━━━━━━━━━━━━━━━
-      `.trim();
-
-      doCopy(report, "전체 상세 결과가 복사되었습니다!");
-    }
-
-    function doCopy(text, msg) {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text).then(() => alert(msg)).catch(() => fallbackCopy(text, msg));
-      } else {
-        fallbackCopy(text, msg);
-      }
-    }
-
-    function fallbackCopy(text, msg) {
-      const textArea = document.createElement("textarea");
-      textArea.value = text;
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textArea);
-      alert(msg + " (보조방식)");
+      // 결과 영역으로 스크롤
+      setTimeout(() => {
+        resultArea.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 50);
     }
   </script>
 </body>
