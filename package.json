@@ -1,0 +1,20 @@
+{
+  "name": "risk-calculator-telegram-bot",
+  "version": "1.0.0",
+  "description": "3분할 리스크 계산기 텔레그램 봇",
+  "main": "bot.js",
+  "scripts": {
+    "start": "node bot.js",
+    "dev": "nodemon bot.js"
+  },
+  "keywords": ["telegram", "bot", "risk-calculator", "trading"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "node-telegram-bot-api": "^0.64.0",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}
